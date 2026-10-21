@@ -441,7 +441,18 @@ function viewAkun() {
 }
 
 /* ============================ MULAI ============================ */
+/* ============================ MULAI ============================ */
 (async function init() {
-  try { const d = await api('GET', 'public'); CFG = d.settings || {}; document.title = 'Admin — ' + (CFG.nama_sekolah || 'Sekolah'); } catch { /* tetap tampilkan login */ }
-  if (TOKEN) showApp(); else showLogin();
+  if (!TOKEN) {
+    showLogin();   // tampil langsung, tanpa menunggu server
+    api('GET', 'public').then(d => {
+      CFG = d.settings || {};
+      document.title = 'Admin — ' + (CFG.nama_sekolah || 'Sekolah');
+      const u = $('#u'), p = $('#p');
+      if (u && p && !u.value && !p.value) showLogin();   // muat ulang logo & nama sekolah
+    }).catch(() => {});
+    return;
+  }
+  try { const d = await api('GET', 'public'); CFG = d.settings || {}; } catch { }
+  showApp();
 })();
